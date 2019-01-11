@@ -35,6 +35,8 @@ class MainFragment : Fragment() {
         super.onCreate(savedInstanceState)
         inputs = arguments?.getSerializable("inputs") as FragmentInputs
         interactor = arguments?.getSerializable("interactor") as FragmentInteractor
+
+        //Initialize Heavier things here because onCreateView and onViewCreated are called much more number of times
     }
 
     override fun onCreateView(

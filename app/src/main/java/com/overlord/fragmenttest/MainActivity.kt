@@ -5,9 +5,13 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 
-fun BaseActivity.loadFragment(containerID : Int, fragment : Fragment) {
+fun BaseActivity.loadFragment(containerID : Int, fragment : Fragment, popBackStack : Boolean = false) {
     val currentFragment = supportFragmentManager.findFragmentByTag(fragment.getName())
-    val fragmentsOnTopDestroyed = supportFragmentManager.popBackStackImmediate(fragment.getName(), 0)
+
+    var fragmentsOnTopDestroyed = false
+
+    if (popBackStack)
+          fragmentsOnTopDestroyed = supportFragmentManager.popBackStackImmediate(fragment.getName(), 0)
 
     val fragmentNotInBackStack = (currentFragment == null) && (! fragmentsOnTopDestroyed)
 
