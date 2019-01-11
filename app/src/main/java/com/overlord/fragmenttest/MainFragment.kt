@@ -12,7 +12,7 @@ class MainFragment : Fragment() {
 
     class FragmentInputs(val firstName : String, val surname : String) : Serializable
 
-    interface FragmentInteractor {
+    interface FragmentInteractor : Serializable {
         fun onSnackbarButtonPressed(message: String)
         fun onSwitchFragmentButtonPressed()
     }
@@ -24,14 +24,17 @@ class MainFragment : Fragment() {
         @JvmStatic
         fun newInstance(inputs : FragmentInputs, interactor : FragmentInteractor) =
             MainFragment().apply {
-                this.interactor = interactor
-                arguments = Bundle().apply { putSerializable("inputs", inputs) }
+                arguments = Bundle().apply {
+                    putSerializable("inputs", inputs)
+                    putSerializable("interactor", interactor)
+                }
             }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inputs = arguments?.getSerializable("inputs") as FragmentInputs
+        interactor = arguments?.getSerializable("interactor") as FragmentInteractor
     }
 
     override fun onCreateView(
@@ -42,9 +45,11 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         buttonSnackbar.setOnClickListener {
             interactor.onSnackbarButtonPressed("${inputs.firstName} ${inputs.surname}")
         }
+
         buttonSwitchFragment.setOnClickListener {
             interactor.onSwitchFragmentButtonPressed()
         }

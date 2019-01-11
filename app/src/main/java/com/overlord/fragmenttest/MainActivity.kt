@@ -3,17 +3,18 @@ package com.overlord.fragmenttest
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 
 fun BaseActivity.loadFragment(containerID : Int, fragment : Fragment) {
-    val currentFragment = supportFragmentManager.findFragmentById(containerID)
+    val currentFragment = supportFragmentManager.findFragmentByTag(fragment.getName())
+    val fragmentsOnTopDestroyed = supportFragmentManager.popBackStackImmediate(fragment.getName(), 0)
 
-    if (currentFragment == null)
-        supportFragmentManager.beginTransaction()
-            .add(containerID, fragment)
-            .commit()
-    else
+    val fragmentNotInBackStack = (currentFragment == null) && (! fragmentsOnTopDestroyed)
+
+    if (fragmentNotInBackStack)
         supportFragmentManager.beginTransaction()
             .replace(containerID, fragment)
+            .addToBackStack(fragment.getName())
             .commit()
 }
 
@@ -21,6 +22,15 @@ fun BaseActivity.snackbar(message : String) {
     // android.R.id.content Points to the layout file
     Snackbar.make(this.findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
 }
+
+fun AppCompatActivity.getName() : String {
+    return this.javaClass.simpleName
+}
+
+fun Fragment.getName() : String {
+    return this.javaClass.simpleName
+}
+
 
 class MainActivity : BaseActivity() {
 
@@ -45,10 +55,11 @@ class MainActivity : BaseActivity() {
 
     private fun createSecondFragment() : SecondFragment {
         return SecondFragment.newInstance(
-            null,
+            SecondFragment.FragmentInputs("Diksha", "Agarwal"),
             object : SecondFragment.FragmentInteractor {
                 override fun onSwitchFragmentButtonPressed() {
                     snackbar("Switch Called")
+                    loadFragment(containerID, createMainFragment())
                 }
             }
         )
@@ -59,5 +70,12 @@ class MainActivity : BaseActivity() {
         setContentView(R.layout.activity_main)
 
         loadFragment(containerID, createMainFragment())
+    }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount == 1)
+            finish()
+        else
+            super.onBackPressed()
     }
 }
